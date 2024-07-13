@@ -1,6 +1,8 @@
 import discord
-import notification
 import os
+
+import notification
+import registration
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,7 +25,7 @@ async def on_message(message):
         await notification.timer(message.channel)
 
     if message.content.lower().startswith("$resetnotification"):
-        notification.resetNotification(False)
+        await notification.resetNotification(False)
 
     if message.content.startswith("$hello"):
         await message.channel.send("Hello!")

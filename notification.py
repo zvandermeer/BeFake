@@ -42,7 +42,7 @@ async def scheduleNotification(notificationTimestamp):
 
 async def resetNotification(scheduled):
     now = datetime.datetime.now()
-    if scheduled:
+    if now < datetime.datetime(year=now.year, month=now.month, day=now.day, hour=8, minute=30):
         notificationStartTime = datetime.datetime(year=now.year, month=now.month, day=now.day, hour=8, minute=30)
     else:
         notificationStartTime = datetime.datetime(year=now.year, month=now.month, day=now.day, hour=now.hour, minute=now.minute, second=now.second)
