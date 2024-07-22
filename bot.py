@@ -22,7 +22,7 @@ db_cursor = db_connection.cursor()
 @client.event
 async def on_ready():
     print(f'Bot logged in as {client.user}')
-    await notification.initializeNotification(db_connection, db_cursor)
+    await notification.initializeNotification(client, db_connection, db_cursor)
 
 @client.event
 async def on_message(message):
@@ -31,9 +31,6 @@ async def on_message(message):
 
     if message.content.startswith('$timer'):
         await notification.timer(message.channel)
-
-    if message.content.lower().startswith("$resetnotification"):
-        await notification.resetNotification(False)
 
     if message.content.startswith("$hello"):
         await message.channel.send("Hello!")

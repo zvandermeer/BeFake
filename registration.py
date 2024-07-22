@@ -4,7 +4,7 @@ import discord
 async def memberJoin(member, client, dbConnection, dbCursor):
     params = (member.id, member.guild.id)
 
-    dbCursor.execute("SELECT Personal_Channel FROM USERS WHERE User_ID = ? AND Guild = ?", params)
+    dbCursor.execute('''SELECT Personal_Channel FROM USERS WHERE User_ID = ? AND Guild = ?''', params)
 
     foundUser = dbCursor.fetchall()
 
@@ -22,7 +22,7 @@ async def memberJoin(member, client, dbConnection, dbCursor):
                   member.name,
                   member.display_name)
 
-        dbCursor.execute("INSERT INTO USERS (User_ID, Guild, Personal_Channel, Username, Display_Name) VALUES (?, ?, ?, ?, ?)", params)
+        dbCursor.execute('''INSERT INTO USERS (User_ID, Guild, Personal_Channel, Username, Display_Name) VALUES (?, ?, ?, ?, ?)''', params)
 
         dbConnection.commit()
 
