@@ -1,43 +1,52 @@
 import sqlite3
 
-db_connection = sqlite3.connect('befake.sqlite3')
+def setup():
 
-db_cursor = db_connection.cursor()
+    db_connection = sqlite3.connect('befake.sqlite3')
 
-db_cursor.execute("DROP TABLE IF EXISTS USERS")
+    db_cursor = db_connection.cursor()
 
-user_table = """    CREATE TABLE USERS (
-                    id INTEGER PRIMARY KEY,
-                    User_ID BIGINT NOT NULL,
-                    Guild BIGINT NOT NULL,
-                    Personal_Channel BIGINT NOT NULL,
-                    Username CHAR(32) NOT NULL,
-                    Display_Name CHAR(32) NOT NULL,
-                    Real_Name CHAR(32)
-            );  """
+    db_cursor.execute("DROP TABLE IF EXISTS USERS")
 
-db_cursor.execute(user_table)
+    user_table = """    CREATE TABLE USERS (
+                        id INTEGER PRIMARY KEY,
+                        User_ID BIGINT NOT NULL,
+                        Guild BIGINT NOT NULL,
+                        Personal_Channel BIGINT NOT NULL,
+                        Username CHAR(32) NOT NULL,
+                        Display_Name CHAR(32) NOT NULL,
+                        Real_Name CHAR(32)
+                );  """
 
-db_cursor.execute("DROP TABLE IF EXISTS GROUPS")
+    db_cursor.execute(user_table)
 
-group_table = """   CREATE TABLE GROUPS (
-                    id INTEGER PRIMARY KEY,
-                    Name CHAR(255) NOT NULL,
-                    Guild BIGINT NOT NULL,
-                    Notification_Time CHAR(255) NOT NULL,
-                    Notification_Message CHAR(255)
-            );  """
+    db_cursor.execute("DROP TABLE IF EXISTS GROUPS")
 
-db_cursor.execute(group_table)
+    group_table = """   CREATE TABLE GROUPS (
+                        id INTEGER PRIMARY KEY,
+                        Name CHAR(255) NOT NULL,
+                        Guild BIGINT NOT NULL,
+                        Notification_Time CHAR(255) NOT NULL,
+                        Notification_Message CHAR(255)
+                );  """
 
-db_cursor.execute("DROP TABLE IF EXISTS MEMBERS")
+    db_cursor.execute(group_table)
 
-member_table = """  CREATE TABLE MEMBERS (
-                    id INTEGER PRIMARY KEY,
-                    Group_ID int NOT NULL,
-                    User_ID BIGINT NOT NULL,
-                    FOREIGN KEY (Group_ID) REFERENCES GROUPS(id),
-                    FOREIGN KEY (USER_ID) REFERENCES USERS(id)
-            );  """
+    db_cursor.execute("DROP TABLE IF EXISTS MEMBERS")
 
-db_cursor.execute(member_table)
+    member_table = """  CREATE TABLE MEMBERS (
+                        id INTEGER PRIMARY KEY,
+                        Group_ID int NOT NULL,
+                        User_ID BIGINT NOT NULL,
+                        FOREIGN KEY (Group_ID) REFERENCES GROUPS(id),
+                        FOREIGN KEY (USER_ID) REFERENCES USERS(id)
+                );  """
+
+    db_cursor.execute(member_table)
+
+    print("Database has been configured.")
+
+    db_connection.close()
+
+if __name__ == "__main__":
+    setup()
