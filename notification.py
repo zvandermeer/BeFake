@@ -22,7 +22,7 @@ async def timer(channel):
     
     print("done")
 
-async def scheduleNotification(notificationTimestamp):
+async def scheduleNotification(notificationTimestamp, groupId, dbConnection, dbCursor):
     now = datetime.datetime.now()
     notificationTime = datetime.datetime.fromtimestamp(notificationTimestamp)
 
@@ -32,15 +32,11 @@ async def scheduleNotification(notificationTimestamp):
 
     # Fire off notification here
 
-    notificationInfo = {
-        "timestamp": notificationTimestamp,
-        "triggered": True
-    }
+    dbCursor.execute('''UPDATE GROUPS SET Notification_Triggered 1 WHERE id = ?''', (groupId))
 
-    with open('notification.json', 'w') as fp:
-        json.dump(notificationInfo, fp)
+    dbConnection.commit()
 
-async def resetNotification(scheduled):
+async def resetNotification(groupId, dbConnection, dbCursor):
     now = datetime.datetime.now()
     if now < datetime.datetime(year=now.year, month=now.month, day=now.day, hour=8, minute=30):
         notificationStartTime = datetime.datetime(year=now.year, month=now.month, day=now.day, hour=8, minute=30)
@@ -48,35 +44,35 @@ async def resetNotification(scheduled):
         notificationStartTime = datetime.datetime(year=now.year, month=now.month, day=now.day, hour=now.hour, minute=now.minute, second=now.second)
         
     delta = (datetime.datetime(year=now.year, month=now.month, day=now.day, hour=22, minute=30) - notificationStartTime).total_seconds()
-    notificationTimestamp = (notificationStartTime + datetime.timedelta(seconds=random.randrange(60, delta))).timestamp()
+    notificationTimestamp = int((notificationStartTime + datetime.timedelta(seconds=random.randrange(60, delta))).timestamp())
 
-    notificationInfo = {
-        "timestamp": notificationTimestamp,
-        "triggered": False
-    }
+    dbCursor.execute('''UPDATE GROUPS SET Notification_Time = ?, Notification_Triggered = 0 WHERE id = ?''', (notificationTimestamp, groupId))
 
-    with open('notification.json', 'w') as fp:
-        json.dump(notificationInfo, fp)
+    dbConnection.commit()
 
     return notificationTimestamp
 
-async def initializeNotification():
-    resetNotificationSchedule.start()
+async def initializeNotification(dbConnection, dbCursor):
+    resetNotificationSchedule.start(dbConnection, dbCursor)
 
-    with open("notification.json", "r") as fp:
-        notificationInfo = json.load(fp)
+    dbCursor.execute('''SELECT id, Notification_Time, Notification_Triggered FROM GROUPS''')
 
-    lastNotification = datetime.datetime.fromtimestamp(notificationInfo["timestamp"])
-    now = datetime.datetime.now()
+    for group in dbCursor.fetchall():
 
-    if lastNotification.date() != now.date() or (not notificationInfo["triggered"] and lastNotification.time() < now.time() and now.time() < datetime.time(hour=22, minute=30)):
-        notificationTimestamp = await resetNotification(False)
-    else:
-        notificationTimestamp = lastNotification.timestamp()
+        lastNotification = datetime.datetime.fromtimestamp(group[1])
+        now = datetime.datetime.now()
 
-    return notificationTimestamp
+        if lastNotification.date() != now.date() or (not group[2] and lastNotification.time() < now.time() and now.time() < datetime.time(hour=22, minute=30)):
+            notificationTimestamp = await resetNotification(group[0], dbConnection, dbCursor)
+        else:
+            notificationTimestamp = lastNotification.timestamp()
+
+        await scheduleNotification(notificationTimestamp, group[0], dbConnection, dbCursor)
 
 @tasks.loop(time=notificationResetTime)
-async def resetNotificationSchedule():
-    notificationTimestamp = await resetNotification(True)
-    await scheduleNotification(notificationTimestamp)
+async def resetNotificationSchedule(dbConnection, dbCursor):
+    dbCursor.execute('''SELECT id, Notification_Time, Notification_Triggered FROM GROUPS''')
+
+    for group in dbCursor.fetchall():
+        notificationTimestamp = await resetNotification(group[0], dbConnection, dbCursor)
+        await scheduleNotification(notificationTimestamp, group[0], dbConnection, dbCursor)

@@ -26,8 +26,11 @@ def setup():
                         id INTEGER PRIMARY KEY,
                         Name CHAR(255) NOT NULL,
                         Guild BIGINT NOT NULL,
-                        Notification_Time CHAR(255) NOT NULL,
-                        Notification_Message CHAR(255)
+                        Shared_Channel BIGINT NOT NULL,
+                        Notification_Configuration CHAR(255) NOT NULL,
+                        Notification_Message CHAR(255) NOT NULL,
+                        Notification_Time INTEGER NOT NULL,
+                        Notification_Triggered BOOL NOT NULL
                 );  """
 
     db_cursor.execute(group_table)

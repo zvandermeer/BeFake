@@ -21,9 +21,8 @@ db_cursor = db_connection.cursor()
 
 @client.event
 async def on_ready():
-    notificationTimestamp = await notification.initializeNotification()
     print(f'Bot logged in as {client.user}')
-    await notification.scheduleNotification(notificationTimestamp)
+    await notification.initializeNotification(db_connection, db_cursor)
 
 @client.event
 async def on_message(message):
