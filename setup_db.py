@@ -2,7 +2,7 @@ import sqlite3
 
 def setup():
 
-    db_connection = sqlite3.connect('befake.sqlite3')
+    db_connection = sqlite3.connect('realcord.sqlite3')
 
     db_cursor = db_connection.cursor()
 
@@ -52,7 +52,7 @@ def setup():
     db_connection.close()
 
 def generateSampleData():
-    db_connection = sqlite3.connect('befake.sqlite3')
+    db_connection = sqlite3.connect('realcord.sqlite3')
 
     db_cursor = db_connection.cursor()
 

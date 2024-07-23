@@ -14,7 +14,7 @@ async def memberJoin(member, client, dbConnection, dbCursor):
             member: discord.PermissionOverwrite(view_channel=True)
         }
 
-        channel = await member.guild.create_text_channel(f"{member.display_name}-befake", overwrites=overwrites)
+        channel = await member.guild.create_text_channel(f"{member.display_name}-realcord", overwrites=overwrites)
 
         params = (member.id,
                   member.guild.id,

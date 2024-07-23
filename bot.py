@@ -14,10 +14,10 @@ intents.members = True
 
 client=commands.Bot(intents=intents, test_guilds=[1261466340003287134])
 
-if not os.path.isfile("befake.sqlite3"):
+if not os.path.isfile("realcord.sqlite3"):
     setup_db.setup()
 
-db_connection = sqlite3.connect('befake.sqlite3')
+db_connection = sqlite3.connect('realcord.sqlite3')
 
 db_cursor = db_connection.cursor()
 
@@ -41,7 +41,7 @@ async def on_message(message):
 async def on_member_join(member):
     await registration.memberJoin(member, client, db_connection, db_cursor)
 
-@client.slash_command(description="Creates a new BeFake group")
+@client.slash_command(description="Creates a new RealCord group")
 async def create_new_group(ctx: discord.ApplicationContext, name: discord.Option(discord.SlashCommandOptionType.string)):
     await groups.createGroup(ctx.author, name, db_connection, db_cursor)
 
