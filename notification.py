@@ -9,20 +9,7 @@ if time.localtime().tm_isdst:
 else:
     notificationResetTime = datetime.time(hour=5, minute=0)
 
-async def timer(channel):
-    print("we are timing")
-
-    count = 10
-    message = await channel.send(str(count))
-    while count > 1:
-        await asyncio.sleep(1)
-        count -= 1
-        await message.edit(content=str(count))
-    
-    print("done")
-
 async def triggerNotification(groupId, client, dbCursor):
-    # Keys are not working properly
     dbCursor.execute('''SELECT MEMBERS.Personalized_Message, USERS.Personal_Channel, GROUPS.Notification_Message FROM MEMBERS LEFT JOIN USERS ON MEMBERS.User_ID = USERS.id LEFT JOIN GROUPS ON MEMBERS.Group_ID = GROUPS.id WHERE Group_ID = ?''', (groupId,))
 
     for member in dbCursor.fetchall():

@@ -63,12 +63,6 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('$timer'):
-        await notification.timer(message.channel)
-
-    if message.content.startswith("$hello"):
-        await message.channel.send("Hello!")
-
 @client.event
 async def on_member_join(member):
     await registration.memberJoin(member, client, db_connection, db_cursor)
