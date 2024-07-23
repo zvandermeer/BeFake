@@ -77,6 +77,20 @@ async def on_member_join(member):
 async def create_new_group(ctx: discord.ApplicationContext, name: discord.Option(discord.SlashCommandOptionType.string)):
     await groups.createGroup(ctx.author, name, db_connection, db_cursor)
 
+# TODO: Reorganize this to not be in bot.py
+@client.slash_command(description="Adds a new user to a RealCord group")
+async def add_user_to_group(ctx: discord.ApplicationContext, member: discord.Option(discord.SlashCommandOptionType.user)):
+
+    db_cursor.execute('''SELECT id FROM USERS WHERE User_ID = ? AND Guild = ?''', (ctx.author.id, ctx.guild.id))
+
+    userId = db_cursor.fetchall()[0][0]
+
+    db_cursor.execute('''SELECT MEMBERS.Group_ID, GROUPS.Name FROM MEMBERS LEFT JOIN GROUPS ON MEMBERS.Group_ID = GROUPS.id WHERE User_ID = ?''', (userId,))
+
+    groups = db_cursor.fetchall() # Will need to change this, select menus have a limit of 25 entries
+
+    await ctx.respond(f"Select a group to add {member.display_name} to:", ephemeral=True, view=AddGroupSelectView(member, groups))
+
 @client.user_command(name="Add user to RealCord group", guild_ids=[1261466340003287134])  # create a user command for the supplied guilds
 async def account_creation_date(ctx, member: discord.Member):  # user commands return the member
 
