@@ -1,16 +1,18 @@
 import sqlite3
 import discord
+from discord.ext import commands
 import os
 
 import notification
 import registration
+import groups
 import setup_db
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-client = discord.Client(intents=intents)
+client=commands.Bot(intents=intents, test_guilds=[1261466340003287134])
 
 if not os.path.isfile("befake.sqlite3"):
     setup_db.setup()
@@ -38,6 +40,10 @@ async def on_message(message):
 @client.event
 async def on_member_join(member):
     await registration.memberJoin(member, client, db_connection, db_cursor)
+
+@client.slash_command(description="Creates a new BeFake group")
+async def create_new_group(ctx: discord.ApplicationContext, name: discord.Option(discord.SlashCommandOptionType.string)):
+    await groups.createGroup(ctx.author, name, db_connection, db_cursor)
 
 client.run(os.environ["DISCORD_BOT_TOKEN"])
 

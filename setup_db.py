@@ -27,10 +27,9 @@ def setup():
                         Name CHAR(255) NOT NULL,
                         Guild BIGINT NOT NULL,
                         Shared_Channel BIGINT NOT NULL,
-                        Notification_Configuration CHAR(255) NOT NULL,
                         Notification_Message CHAR(255) NOT NULL,
-                        Notification_Time INTEGER NOT NULL,
-                        Notification_Triggered BOOL NOT NULL
+                        Notification_Time INTEGER,
+                        Notification_Triggered BOOL
                 );  """
 
     db_cursor.execute(group_table)
@@ -58,7 +57,7 @@ def generateSampleData():
     db_cursor = db_connection.cursor()
 
     db_cursor.execute('''INSERT INTO USERS (id, User_ID, Guild, Personal_Channel, Username, Display_Name, Real_Name) VALUES (1, 309771442763857931, 1261466340003287134, 1265050555806646386, "cosmosstarlightt", "CosmosStarlightt", "Zoey")''')
-    db_cursor.execute('''INSERT INTO GROUPS (id, Name, Guild, Shared_Channel, Notification_Configuration, Notification_Message, Notification_Time, Notification_Triggered) VALUES (1, "Example Group", 1261466340003287134, 1265051953063530609, "", "Time to befake!", 1721682324, 0)''')
+    db_cursor.execute('''INSERT INTO GROUPS (id, Name, Guild, Shared_Channel, Notification_Message, Notification_Time, Notification_Triggered) VALUES (1, "Example Group", 1261466340003287134, 1265051953063530609, "Time to befake!", 1721682324, 0)''')
     db_cursor.execute('''INSERT INTO MEMBERS (id, Group_ID, User_ID, Personalized_Message) VALUES (1, 1, 1, "Time to befake!")''')
 
     db_connection.commit()
