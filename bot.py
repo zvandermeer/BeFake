@@ -23,27 +23,20 @@ db_connection = sqlite3.connect('realcord.sqlite3')
 
 db_cursor = db_connection.cursor()
 
-class GroupSelectMenu(Select):
-    def __init__(self, userId, newMember, guildId):
-        db_cursor.execute('''SELECT id FROM USERS WHERE User_ID = ? AND Guild = ?''', (userId,guildId))
-
-        userDbId = db_cursor.fetchall()[0][0]
-
-        db_cursor.execute('''SELECT MEMBERS.Group_ID, GROUPS.Name FROM MEMBERS LEFT JOIN GROUPS ON MEMBERS.Group_ID = GROUPS.id WHERE User_ID = ?''', (userDbId,))
+class AddGroupSelectMenu(Select):
+    def __init__(self, newMember, groups):
 
         self.groupOptions = []
         self.newMember = newMember
 
-        # print(db_cursor.fetchall())
-
-        for group in db_cursor.fetchall(): # Will need to change this, select menus have a limit of 25 entries
+        for group in groups:
             self.groupOptions.append(discord.SelectOption(
                 label=group[1],
                 description=f"Add {newMember.display_name} to \"{group[1]}\"",
                 value=str(group[0])
             ))
 
-        super(GroupSelectMenu, self).__init__(
+        super(AddGroupSelectMenu, self).__init__(
             placeholder=f"Select a group:",
             min_values=1,
             max_values=1,
@@ -54,10 +47,10 @@ class GroupSelectMenu(Select):
         await groups.addToGroup(client, self.newMember, self.values[0], db_connection, db_cursor)
         await interaction.response.edit_message(content="Done!", view=None)
 
-class GroupSelectView(View):
-    def __init__(self, userId, newMember, guildId):
-        super(GroupSelectView, self).__init__()
-        self.menu = GroupSelectMenu(userId, newMember, guildId)
+class AddGroupSelectView(View):
+    def __init__(self, newMember, groups):
+        super(AddGroupSelectView, self).__init__()
+        self.menu = AddGroupSelectMenu(newMember, groups)
         self.add_item(self.menu)
 
 @client.event
@@ -84,12 +77,18 @@ async def on_member_join(member):
 async def create_new_group(ctx: discord.ApplicationContext, name: discord.Option(discord.SlashCommandOptionType.string)):
     await groups.createGroup(ctx.author, name, db_connection, db_cursor)
 
-@client.user_command(name="Account Creation Date", guild_ids=[1261466340003287134])  # create a user command for the supplied guilds
+@client.user_command(name="Add user to RealCord group", guild_ids=[1261466340003287134])  # create a user command for the supplied guilds
 async def account_creation_date(ctx, member: discord.Member):  # user commands return the member
 
-    await ctx.respond(f"Select a group to add {member.display_name} to:", ephemeral=True, view=GroupSelectView(ctx.author.id, member, ctx.guild.id))
+    db_cursor.execute('''SELECT id FROM USERS WHERE User_ID = ? AND Guild = ?''', (ctx.author.id, ctx.guild.id))
 
-    # await ctx.respond(f"{member.name}'s account was created on {member.created_at}",ephemeral=True)
+    userId = db_cursor.fetchall()[0][0]
+
+    db_cursor.execute('''SELECT MEMBERS.Group_ID, GROUPS.Name FROM MEMBERS LEFT JOIN GROUPS ON MEMBERS.Group_ID = GROUPS.id WHERE User_ID = ?''', (userId,))
+
+    groups = db_cursor.fetchall() # Will need to change this, select menus have a limit of 25 entries
+
+    await ctx.respond(f"Select a group to add {member.display_name} to:", ephemeral=True, view=AddGroupSelectView(member, groups))
 
 client.run(os.environ["DISCORD_BOT_TOKEN"])
 
