@@ -2,7 +2,6 @@ import asyncio
 import datetime
 from discord.ext import tasks
 import time
-import json
 import random
 
 if time.localtime().tm_isdst:
